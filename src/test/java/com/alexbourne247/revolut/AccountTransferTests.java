@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import static com.alexbourne247.revolut.DBHelper.getBalance;
+import static com.alexbourne247.revolut.TransferStatus.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
@@ -47,25 +48,30 @@ public class AccountTransferTests {
 
     @Test
     public void successfulTransferWithSufficientFunds() throws Exception {
-        assertEquals(TransferStatus.TRANSFERRED, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": 150.99 }"), TransferStatus.class));
+        assertEquals(TRANSFERRED, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": 150.99 }"), TransferStatus.class));
         assertEquals(getBalance(12345), 49.01, 0.01);
         assertEquals(getBalance(23456), 150.99, 0.01);    }
 
     @Test
     public void unsuccessfulTransferDueToInsufficientFunds() throws Exception {
-        assertEquals(TransferStatus.INSUFFICIENT_FUNDS, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": 2000.00 }"), TransferStatus.class));
+        assertEquals(INSUFFICIENT_FUNDS, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": 2000.00 }"), TransferStatus.class));
         assertEquals(getBalance(12345), 200.0, 0.01);
         assertEquals(getBalance(23456), 0.0, 0.01);
     }
 
     @Test
     public void fromAccountDoesntExist() throws Exception {
-        assertEquals(TransferStatus.FROM_ACCOUNT_DOESNT_EXIST, mapper.readValue(post("transfer", "{ \"fromAccountId\": 99999, \"toAccountId\": 23456, \"amount\": 100.00 }"), TransferStatus.class));
+        assertEquals(FROM_ACCOUNT_DOESNT_EXIST, mapper.readValue(post("transfer", "{ \"fromAccountId\": 99999, \"toAccountId\": 23456, \"amount\": 100.00 }"), TransferStatus.class));
     }
 
     @Test
     public void toAccountDoesntExist() throws Exception {
-        assertEquals(TransferStatus.TO_ACCOUNT_DOESNT_EXIST, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 99999, \"amount\": 100.00 }"), TransferStatus.class));
+        assertEquals(TO_ACCOUNT_DOESNT_EXIST, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 99999, \"amount\": 100.00 }"), TransferStatus.class));
+    }
+
+    @Test
+    public void negativeAmount() throws Exception {
+        assertEquals(INVALID_TRANSFER_AMOUNT, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": -100.00 }"), TransferStatus.class));
     }
 
     private String get(String path) {

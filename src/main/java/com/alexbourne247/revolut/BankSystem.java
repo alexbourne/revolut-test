@@ -29,6 +29,11 @@ public class BankSystem implements TransferService {
                 LOGGER.info("Funds transfer failed: " + TO_ACCOUNT_DOESNT_EXIST);
                 return TO_ACCOUNT_DOESNT_EXIST;
             }
+            if (amount < 0.0) {
+                connection.rollback();
+                LOGGER.info("Funds transfer failed: " + INVALID_TRANSFER_AMOUNT);
+                return INVALID_TRANSFER_AMOUNT;
+            }
             double fromBalance = getBalance(statement, fromAccountId);
             double toBalance = getBalance(statement, toAccountId);
 
