@@ -37,8 +37,8 @@ public class BankSystem implements TransferService {
                 LOGGER.info("Funds transfer failed: " + INSUFFICIENT_FUNDS);
                 return INSUFFICIENT_FUNDS;
             }
-            statement.executeUpdate("update accounts set balance = " + (fromBalance - amount) +" where accountId = " + fromAccountId);
-            statement.executeUpdate("update accounts set balance = " + (toBalance + amount) +" where accountId = " + toAccountId);
+            updateBalance(statement, fromAccountId, fromBalance - amount);
+            updateBalance(statement, toAccountId, toBalance + amount);
             connection.commit();
         } catch (SQLException e) {
             LOGGER.error("Funds transfer failed", e);
@@ -56,6 +56,10 @@ public class BankSystem implements TransferService {
         ResultSet resultSet = statement.executeQuery("select balance from accounts where accountId = " + accountId);
         resultSet.next();
         return resultSet.getDouble(1);
+    }
+
+    private void updateBalance(Statement statement, int accountId, double amount) throws SQLException {
+        statement.executeUpdate("update accounts set balance = " + amount +" where accountId = " + accountId);
     }
 
 }
