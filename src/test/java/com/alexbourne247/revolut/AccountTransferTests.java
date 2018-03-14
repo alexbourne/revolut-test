@@ -8,10 +8,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import ratpack.test.MainClassApplicationUnderTest;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
+import static com.alexbourne247.revolut.DBHelper.getBalance;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4.class)
 public class AccountTransferTests {
@@ -90,17 +93,6 @@ public class AccountTransferTests {
             statement.executeUpdate("INSERT INTO accounts VALUES (23456,'Little Dave', 0.0)");
             connection.commit();
         }
-    }
-
-    private static double getBalance(int accountId) throws SQLException {
-        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
-            ResultSet rs = statement.executeQuery("select balance from accounts where accountId = " + accountId);
-            if (rs.next()) {
-                return rs.getDouble(1);
-            }
-        }
-
-        return Double.NaN;
     }
 
 }

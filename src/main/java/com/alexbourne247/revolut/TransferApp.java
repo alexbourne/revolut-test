@@ -12,8 +12,8 @@ public class TransferApp {
                 .module(TransferModule.class)
             ))
             .handlers(chain -> chain
-                .get(ctx -> ctx.render("Account Transfer Service"))
-                .path("transfer", TransferHandler.class)
+                    .get(ctx -> ctx.render("Account Transfer Service"))
+                    .path("transfer", TransferHandler.class)
             )
         );
     }

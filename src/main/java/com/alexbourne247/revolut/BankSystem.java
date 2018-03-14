@@ -1,22 +1,32 @@
 package com.alexbourne247.revolut;
 
-import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static com.alexbourne247.revolut.DBHelper.getConnection;
 import static com.alexbourne247.revolut.TransferStatus.*;
-import static com.alexbourne247.revolut.TransferStatus.FROM_ACCOUNT_DOESNT_EXIST;
 
 public class BankSystem implements TransferService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(BankSystem.class);
+
     @Override
     public TransferStatus transferFunds(int fromAccountId, int toAccountId, double amount) {
-        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
+        try (Connection connection = getConnection("alex", "alex"); Statement statement = connection.createStatement()) {
             statement.execute("START TRANSACTION");
             if (!accountExists(statement, fromAccountId)) {
                 connection.rollback();
+                LOGGER.info("Funds transfer failed: " + FROM_ACCOUNT_DOESNT_EXIST);
                 return FROM_ACCOUNT_DOESNT_EXIST;
             }
             if (!accountExists(statement, toAccountId)) {
                 connection.rollback();
+                LOGGER.info("Funds transfer failed: " + TO_ACCOUNT_DOESNT_EXIST);
                 return TO_ACCOUNT_DOESNT_EXIST;
             }
             double fromBalance = getBalance(statement, fromAccountId);
@@ -24,13 +34,14 @@ public class BankSystem implements TransferService {
 
             if (amount > fromBalance) {
                 connection.rollback();
-                return TransferStatus.INSUFFICIENT_FUNDS;
+                LOGGER.info("Funds transfer failed: " + INSUFFICIENT_FUNDS);
+                return INSUFFICIENT_FUNDS;
             }
             statement.executeUpdate("update accounts set balance = " + (fromBalance - amount) +" where accountId = " + fromAccountId);
             statement.executeUpdate("update accounts set balance = " + (toBalance + amount) +" where accountId = " + toAccountId);
             connection.commit();
         } catch (SQLException e) {
-            // LOG ERROR
+            LOGGER.error("Funds transfer failed", e);
             return ERROR;
         }
         return TRANSFERRED;
@@ -45,10 +56,6 @@ public class BankSystem implements TransferService {
         ResultSet resultSet = statement.executeQuery("select balance from accounts where accountId = " + accountId);
         resultSet.next();
         return resultSet.getDouble(1);
-    }
-
-    private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:hsqldb:mem:employees", "alex", "alex");
     }
 
 }
