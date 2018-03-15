@@ -17,6 +17,14 @@ public class BankSystem implements TransferService {
     private static final String TRANSFER_FAILED = "Funds transfer failed: ";
 
 
+    /**
+     * Transfer funds from one account to another
+     *
+     * @param fromAccountId The account to transfer funds from
+     * @param toAccountId   The account to transfer funds to
+     * @param amount of money to transfer
+     * @return {@link TransferStatus} depending on outcome of transfer
+     */
     @Override
     public TransferStatus transferFunds(int fromAccountId, int toAccountId, double amount) {
         try (Connection connection = getConnection("alex", "alex"); Statement statement = connection.createStatement()) {
