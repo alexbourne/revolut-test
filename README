@@ -1,0 +1,19 @@
+This is a simple money transfer application packaged as a ratpack based microservice, completed as a test for Revolut.
+
+The app has only one function - transfer
+
+You can call the app as follows:
+
+To return a simple string message (show it is working)
+http://localhost:5050/
+
+To perform a transfer
+http://localhost:5050/transfer
+
+and include a body like this:
+{ "fromAccountId": 12345, "toAccountId": 23456, "amount": 150.99 }
+
+The accounts are pre loaded when the application starts. This is of course very contrived, but you can see what is happening in the tests
+
+In a real app I would probably use Flyway and Jooq for the SQL work, and I would certainly use Cucumber tests for integration - I just did not have time to do this now.
+
