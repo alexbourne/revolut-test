@@ -13,38 +13,47 @@ import static com.alexbourne247.revolut.TransferStatus.*;
 
 public class BankSystem implements TransferService {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(BankSystem.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BankSystem.class);
+    private static final String TRANSFER_FAILED = "Funds transfer failed: ";
+
 
     @Override
     public TransferStatus transferFunds(int fromAccountId, int toAccountId, double amount) {
         try (Connection connection = getConnection("alex", "alex"); Statement statement = connection.createStatement()) {
             statement.execute("START TRANSACTION");
+
             if (!accountExists(statement, fromAccountId)) {
                 connection.rollback();
-                LOGGER.info("Funds transfer failed: " + FROM_ACCOUNT_DOESNT_EXIST);
+                LOGGER.info(TRANSFER_FAILED + FROM_ACCOUNT_DOESNT_EXIST);
                 return FROM_ACCOUNT_DOESNT_EXIST;
             }
+
             if (!accountExists(statement, toAccountId)) {
                 connection.rollback();
-                LOGGER.info("Funds transfer failed: " + TO_ACCOUNT_DOESNT_EXIST);
+                LOGGER.info(TRANSFER_FAILED + TO_ACCOUNT_DOESNT_EXIST);
                 return TO_ACCOUNT_DOESNT_EXIST;
             }
+
             if (amount < 0.0) {
                 connection.rollback();
-                LOGGER.info("Funds transfer failed: " + INVALID_TRANSFER_AMOUNT);
+                LOGGER.info(TRANSFER_FAILED + INVALID_TRANSFER_AMOUNT);
                 return INVALID_TRANSFER_AMOUNT;
             }
+
             double fromBalance = getBalance(statement, fromAccountId);
             double toBalance = getBalance(statement, toAccountId);
 
             if (amount > fromBalance) {
                 connection.rollback();
-                LOGGER.info("Funds transfer failed: " + INSUFFICIENT_FUNDS);
+                LOGGER.info(TRANSFER_FAILED + INSUFFICIENT_FUNDS);
                 return INSUFFICIENT_FUNDS;
             }
+
             updateBalance(statement, fromAccountId, fromBalance - amount);
             updateBalance(statement, toAccountId, toBalance + amount);
+
             connection.commit();
+
         } catch (SQLException e) {
             LOGGER.error("Funds transfer failed", e);
             return ERROR;
