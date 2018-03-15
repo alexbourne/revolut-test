@@ -11,7 +11,8 @@ import ratpack.test.MainClassApplicationUnderTest;
 import java.sql.Connection;
 import java.sql.Statement;
 
-import static com.alexbourne247.revolut.DBHelper.*;
+import static com.alexbourne247.revolut.DBHelper.getBalance;
+import static com.alexbourne247.revolut.DBHelper.getConnection;
 import static com.alexbourne247.revolut.Money.gbp;
 import static com.alexbourne247.revolut.TransferStatus.*;
 import static org.junit.Assert.assertEquals;
@@ -24,8 +25,6 @@ public class AccountTransferTests {
 
     @Before
     public void setUp() throws Exception {
-        Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        initDatabase();
         aut = new MainClassApplicationUnderTest(TransferApp.class);
     }
 
@@ -34,7 +33,7 @@ public class AccountTransferTests {
         aut.close();
 
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
-            statement.executeUpdate("DROP TABLE accounts");
+            statement.executeUpdate("DROP TABLE ACCOUNTS");
             connection.commit();
         } catch (Exception e) {
             // ignore this - for some cases the table will not exist
@@ -73,12 +72,6 @@ public class AccountTransferTests {
     @Test
     public void negativeAmount() throws Exception {
         assertEquals(INVALID_TRANSFER_AMOUNT, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": -100.00 }"), TransferStatus.class));
-    }
-
-    @Test
-    public void databaseFailure() throws Exception {
-        killDatabase();
-        assertEquals(ERROR, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": -100.00 }"), TransferStatus.class));
     }
 
     private String get(String path) {

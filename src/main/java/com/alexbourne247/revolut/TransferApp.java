@@ -3,6 +3,8 @@ package com.alexbourne247.revolut;
 import ratpack.guice.Guice;
 import ratpack.server.RatpackServer;
 
+import static com.alexbourne247.revolut.DBHelper.initDatabase;
+
 public class TransferApp {
 
     /*
@@ -10,6 +12,8 @@ public class TransferApp {
         from one account to another using an in memory database
      */
     public static void main(String[] args) throws Exception {
+
+        initDatabase();
 
         RatpackServer.start( server -> server
             .registry(Guice.registry( bindings -> bindings

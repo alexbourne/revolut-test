@@ -21,7 +21,7 @@ public class DBHelper {
 
     public static Money getBalance(int accountId) throws SQLException {
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
-            ResultSet rs = statement.executeQuery("select balance from accounts where accountId = " + accountId);
+            ResultSet rs = statement.executeQuery("select balance from ACCOUNTS where accountId = " + accountId);
             if (rs.next()) {
                 return new Money(rs.getBigDecimal(1), GBP);
             }
@@ -32,20 +32,12 @@ public class DBHelper {
 
     public static void initDatabase() throws SQLException {
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE accounts (accountId INT NOT NULL, name VARCHAR(50) NOT NULL, balance DECIMAL(100,10), PRIMARY KEY (accountId) )");
+            statement.execute("CREATE TABLE ACCOUNTS (accountId INT NOT NULL, name VARCHAR(50) NOT NULL, balance DECIMAL(100,10), PRIMARY KEY (accountId) );");
             connection.commit();
 
-            statement.executeUpdate("INSERT INTO accounts VALUES (12345,'Big Dave', 200.0)");
-            statement.executeUpdate("INSERT INTO accounts VALUES (23456,'Little Dave', 0.0)");
+            statement.executeUpdate("INSERT INTO ACCOUNTS VALUES (12345,'Big Dave', 200.0);");
+            statement.executeUpdate("INSERT INTO ACCOUNTS VALUES (23456,'Little Dave', 0.0);");
             connection.commit();
-        }
-    }
-
-    public static void killDatabase() {
-        try (Connection connection = getConnection()) {
-            connection.createStatement().execute("SHUTDOWN");
-        } catch (Exception e) {
-            // do nothing as this is expected
         }
     }
 

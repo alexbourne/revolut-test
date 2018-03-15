@@ -73,19 +73,19 @@ public class BankSystem implements TransferService {
     }
 
     private boolean accountExists(Statement statement, int accountId) throws SQLException {
-        ResultSet resultSet = statement.executeQuery("select 1 from accounts where accountId = " + accountId);
+        ResultSet resultSet = statement.executeQuery("select 1 from ACCOUNTS where accountId = " + accountId);
         return resultSet.next();
     }
 
     private BigDecimal getBalance(Statement statement, int accountId) throws SQLException {
-        ResultSet resultSet = statement.executeQuery("select balance from accounts where accountId = " + accountId);
+        ResultSet resultSet = statement.executeQuery("select balance from ACCOUNTS where accountId = " + accountId);
         resultSet.next();
         BigDecimal balance = resultSet.getBigDecimal(1);
         return balance.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     private void updateBalance(Statement statement, int accountId, BigDecimal amount) throws SQLException {
-        statement.executeUpdate("update accounts set balance = " + amount +" where accountId = " + accountId);
+        statement.executeUpdate("update ACCOUNTS set balance = " + amount +" where accountId = " + accountId);
     }
 
 }
