@@ -8,14 +8,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import ratpack.test.MainClassApplicationUnderTest;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Statement;
 
 import static com.alexbourne247.revolut.DBHelper.*;
 import static com.alexbourne247.revolut.Money.gbp;
 import static com.alexbourne247.revolut.TransferStatus.*;
-import static java.math.BigDecimal.ZERO;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
@@ -52,14 +50,14 @@ public class AccountTransferTests {
     @Test
     public void successfulTransferWithSufficientFunds() throws Exception {
         assertEquals(TRANSFERRED, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": 150.99 }"), TransferStatus.class));
-        assertEquals(gbp(new BigDecimal(49.01)), getBalance(12345));
-        assertEquals(gbp(new BigDecimal(150.99)), getBalance(23456));    }
+        assertEquals(gbp(49.01), getBalance(12345));
+        assertEquals(gbp(150.99), getBalance(23456));    }
 
     @Test
     public void unsuccessfulTransferDueToInsufficientFunds() throws Exception {
         assertEquals(INSUFFICIENT_FUNDS, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": 2000.00 }"), TransferStatus.class));
-        assertEquals(gbp(new BigDecimal(200.00)), getBalance(12345));
-        assertEquals(gbp(ZERO), getBalance(23456));
+        assertEquals(gbp(200.00), getBalance(12345));
+        assertEquals(gbp(0.0), getBalance(23456));
     }
 
     @Test

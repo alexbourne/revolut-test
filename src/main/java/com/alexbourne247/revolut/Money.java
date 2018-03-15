@@ -5,16 +5,20 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Locale;
 
+/*
+    Borrowed from Fowler's Money pattern - to make display/handling of currency simpler and hides some of the BigDecimal
+    implementation
+ */
 public class Money {
 
-    private static final Currency GBP = Currency.getInstance("GBP");
     private static final RoundingMode DEFAULT_ROUNDING = RoundingMode.HALF_EVEN;
+    static final Currency GBP = Currency.getInstance("GBP");
 
     private BigDecimal amount;
     private Currency currency;
 
-    public static Money gbp(BigDecimal amount) {
-        return new Money(amount, GBP);
+    public static Money gbp(double amount) {
+        return new Money(new BigDecimal(amount), GBP);
     }
 
     Money(BigDecimal amount, Currency currency) {

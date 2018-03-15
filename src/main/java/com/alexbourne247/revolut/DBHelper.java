@@ -2,7 +2,7 @@ package com.alexbourne247.revolut;
 
 import java.sql.*;
 
-import static com.alexbourne247.revolut.Money.gbp;
+import static com.alexbourne247.revolut.Money.GBP;
 
 public class DBHelper {
     public static final String USER = "alex";
@@ -23,7 +23,7 @@ public class DBHelper {
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery("select balance from accounts where accountId = " + accountId);
             if (rs.next()) {
-                return gbp(rs.getBigDecimal(1));
+                return new Money(rs.getBigDecimal(1), GBP);
             }
         }
 
