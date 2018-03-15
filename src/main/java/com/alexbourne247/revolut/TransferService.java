@@ -1,5 +1,7 @@
 package com.alexbourne247.revolut;
 
+import java.math.BigDecimal;
+
 public interface TransferService {
 
     /**
@@ -10,6 +12,6 @@ public interface TransferService {
      * @param amount of money to transfer
      * @return {@link TransferStatus} depending on outcome of transfer
      */
-    TransferStatus transferFunds(int fromAccountId, int toAccountId, double amount);
+    TransferStatus transferFunds(int fromAccountId, int toAccountId, BigDecimal amount);
 
 }

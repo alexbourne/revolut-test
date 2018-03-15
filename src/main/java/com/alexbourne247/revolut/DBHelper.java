@@ -2,6 +2,8 @@ package com.alexbourne247.revolut;
 
 import java.sql.*;
 
+import static com.alexbourne247.revolut.Money.gbp;
+
 public class DBHelper {
     public static final String USER = "alex";
     public static final String PASSWORD = "alex";
@@ -17,20 +19,20 @@ public class DBHelper {
         return DriverManager.getConnection("jdbc:hsqldb:mem:employees", USER, PASSWORD);
     }
 
-    public static double getBalance(int accountId) throws SQLException {
+    public static Money getBalance(int accountId) throws SQLException {
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery("select balance from accounts where accountId = " + accountId);
             if (rs.next()) {
-                return rs.getDouble(1);
+                return gbp(rs.getBigDecimal(1));
             }
         }
 
-        return Double.NaN;
+        return null;
     }
 
     public static void initDatabase() throws SQLException {
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE accounts (accountId INT NOT NULL, name VARCHAR(50) NOT NULL, balance FLOAT, PRIMARY KEY (accountId) )");
+            statement.execute("CREATE TABLE accounts (accountId INT NOT NULL, name VARCHAR(50) NOT NULL, balance DECIMAL(100,10), PRIMARY KEY (accountId) )");
             connection.commit();
 
             statement.executeUpdate("INSERT INTO accounts VALUES (12345,'Big Dave', 200.0)");

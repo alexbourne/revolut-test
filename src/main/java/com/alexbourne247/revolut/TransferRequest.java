@@ -1,10 +1,12 @@
 package com.alexbourne247.revolut;
 
+import java.math.BigDecimal;
+
 public class TransferRequest {
 
     private int fromAccountId;
     private int toAccountId;
-    private double amount;
+    private BigDecimal amount;
 
     public int getFromAccountId() {
         return fromAccountId;
@@ -22,11 +24,11 @@ public class TransferRequest {
         this.toAccountId = toAccountId;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
