@@ -27,7 +27,7 @@ public class BankSystem implements TransferService {
      */
     @Override
     public TransferStatus transferFunds(int fromAccountId, int toAccountId, double amount) {
-        try (Connection connection = getConnection("alex", "alex"); Statement statement = connection.createStatement()) {
+        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("START TRANSACTION");
 
             if (!accountExists(statement, fromAccountId)) {
@@ -62,7 +62,7 @@ public class BankSystem implements TransferService {
 
             connection.commit();
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LOGGER.error("Funds transfer failed", e);
             return ERROR;
         }

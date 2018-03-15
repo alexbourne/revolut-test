@@ -9,11 +9,9 @@ import org.junit.runners.JUnit4;
 import ratpack.test.MainClassApplicationUnderTest;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 
-import static com.alexbourne247.revolut.DBHelper.getBalance;
+import static com.alexbourne247.revolut.DBHelper.*;
 import static com.alexbourne247.revolut.TransferStatus.*;
 import static org.junit.Assert.assertEquals;
 
@@ -31,12 +29,14 @@ public class AccountTransferTests {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         aut.close();
 
         try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TABLE accounts");
             connection.commit();
+        } catch (Exception e) {
+            // ignore this - for some cases the table will not exist
         }
 
     }
@@ -74,6 +74,12 @@ public class AccountTransferTests {
         assertEquals(INVALID_TRANSFER_AMOUNT, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": -100.00 }"), TransferStatus.class));
     }
 
+    @Test
+    public void databaseFailure() throws Exception {
+        killDatabase();
+        assertEquals(ERROR, mapper.readValue(post("transfer", "{ \"fromAccountId\": 12345, \"toAccountId\": 23456, \"amount\": -100.00 }"), TransferStatus.class));
+    }
+
     private String get(String path) {
         return aut.getHttpClient().getText(path);
     }
@@ -83,22 +89,6 @@ public class AccountTransferTests {
             req.method("POST");
             req.body(b -> b.type("application/json").text(body));
         }).getBody().getText();
-    }
-
-
-    private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:hsqldb:mem:employees", "alex", "alex");
-    }
-
-    private static void initDatabase() throws SQLException {
-        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE accounts (accountId INT NOT NULL, name VARCHAR(50) NOT NULL, balance FLOAT, PRIMARY KEY (accountId) )");
-            connection.commit();
-
-            statement.executeUpdate("INSERT INTO accounts VALUES (12345,'Big Dave', 200.0)");
-            statement.executeUpdate("INSERT INTO accounts VALUES (23456,'Little Dave', 0.0)");
-            connection.commit();
-        }
     }
 
 }
