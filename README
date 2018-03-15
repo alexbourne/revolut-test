@@ -2,6 +2,8 @@ This is a simple money transfer application packaged as a ratpack based microser
 
 The app has only one function - transfer
 
+Run the app using mvn exec:java
+
 You can call the app as follows:
 
 To return a simple string message (show it is working)
